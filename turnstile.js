@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var app = express();
 var screen = blessed.screen();
 var querystring = require('querystring');
+
 // Create a box perfectly centered horizontally and vertically.
 var box = blessed.box({
         top: 'center',
@@ -34,7 +35,7 @@ var box = blessed.box({
 //screen.append(box);
 
 var lock_ip = "192.168.0.106";
-var my_ip =  "192.168.0.103";
+var my_ip =  "192.168.0.101";
 var var_ip = "192.168.0.100";
 
 //box.setContent('This node is  ' + my_ip + '  East');
@@ -46,7 +47,8 @@ var interval = 3000;
 
 
 app.set('port', process.env.PORT || 3000);
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded());
 
 function PostObject(post_data, sendto) {
     // An object of options to indicate where to post to
@@ -100,20 +102,21 @@ var poll;
 
 // handle POST requests
 app.post('/do_post', function(req, res) {
+    console.log("Received Message");
     var the_body = req.body;
-    
-    
-    if(the_body!==null && the_body.acquired === 1)
+    console.log(the_body);
+    if(the_body !== null && parseInt(the_body.acquired) === 1)
     {
+	    console.log("Aquired Lock Sending Read request");
         clearInterval(poll);
         sendReadVar();
     }
-    else if(the_body!==null && the_body.acquired === 0)
+    else if(the_body!==null && parseInt(the_body.acquired) === 0)
     {
         console.log("will poll again");
         poll =  setInterval(pollagain ,  2000);
     }
-    else if(the_body!=null && the_body.read == 1 )
+    else if(the_body!=null && parseInt(the_body.read) == 1 )
     {
         console.log("send write--");
         var n = the_body.count;
@@ -122,7 +125,7 @@ app.post('/do_post', function(req, res) {
 
     res.json({
             "body": the_body,
-            "id": JSON.stringify(my_group[my_index])
+            "id": JSON.stringify(my_ip)
         });
 
 });
@@ -192,3 +195,5 @@ screen.render();
 http.createServer(app).listen(app.get('port'), function() {
     // console.log("Express server listening on port " + app.get('port'));
 });
+
+
