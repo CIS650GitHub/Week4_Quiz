@@ -5,8 +5,16 @@ var connect = require("connect");
 var blessed = require('blessed');
 var bodyParser = require('body-parser');
 var app = express();
-var screen = blessed.screen();
+var election_on = 1;
+var election_off = 0;
+var my_ip = "192.168.0.101";
+var ipLock = "";
+var available = 1;
 
+app.use(bodyParser.urlencoded());
+
+// Create a screen object.
+var screen = blessed.screen();
 // Create a box perfectly centered horizontally and vertically.
 var box = blessed.box({
         top: 'center',
@@ -32,13 +40,20 @@ var box = blessed.box({
 
 // Append our box to the screen.
 screen.append(box);
-var querystring = require('querystring');
-var ipLock = "";
-var available = 1;
 
 app.set('port', process.env.PORT || 3000);
 
+var http = require('http');
+var fs = require('fs');
+var querystring = require('querystring');
+box.setContent('This node is  ' + my_ip + '  Lock');
+screen.render();
+
+
 function PostObject(post_data,ip_addr) {
+    // An object of options to indicate where to post to
+    
+    console.log('problem with request: ' + post_data);
     var post_options = {
         host: ip_addr,
         port: '3000',
@@ -53,20 +68,32 @@ function PostObject(post_data,ip_addr) {
     // Set up the request
     var post_req = http.request(post_options, function(res) {
         res.setEncoding('utf8');
-        res.on('data', function(chunk) {});
+        res.on('data', function(chunk) {
+            // clean the queue......
+            // console.log('Response: ' + chunk);
+        });
     });
 
     post_req.on('error', function(e, post_data) {
-        console.log('problem with request: ' + post_data);
+
+        // console.log("trying ......") ;
+        // if(Buffer.byteLength(querystring.stringify(post_data)) > 0)
+        //{ 
+        //console.log("posting again!!!!!");
+        //console.log('problem with request: ' + post_data);
+        PostObject(querystring.stringify(post_data));
+        //}
     });
 
     post_req.write(post_data);
     post_req.end();
 }
 
+// handle POST requests
 app.post('/do_post', function(req, res) {
     console.log("Received Message");
-    console.log(req);
+	  console.log("check" + req);
+	console.log(req.body);
    var the_body = req.body;
    
    var sender_ip = the_body.ip;
@@ -121,8 +148,19 @@ app.post('/do_post', function(req, res) {
   }
 });
 
-http.createServer(app).listen(app.get('port'), function() {
-    console.log("Express server listening on port " + app.get('port'));
+
+// Quit on Escape, q, or Control-C.
+screen.key(['escape', 'q', 'C-c'], function(ch, key) {
+    return process.exit(0);
 });
 
+// Focus our element.
+box.focus();
+
+// Render the screen.
+screen.render();
+
+http.createServer(app).listen(app.get('port'), function() {
+    // console.log("Express server listening on port " + app.get('port'));
+});
 
