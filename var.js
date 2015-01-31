@@ -113,12 +113,12 @@ app.post('/do_post', function(req, res) {
             "ip": JSON.stringify(current_ip)
         });
         
-        if(the_body !== null && the_body.read === 0) {
+        if(the_body !== null && parseInt(the_body.read) === 0) {
         	var ip = the_body.ip;
         	sendCurrentCount(current_count, ip);
         	console.log("Count read!");
         }
-        else if(the_body !== null && the_body.writereq === 0) {
+        else if(the_body !== null && parseInt(the_body.writereq) === 0) {
         	current_count = parseInt(the_body.count) + 1;
         	console.log("Count updated!");
         }
