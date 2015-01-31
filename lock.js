@@ -81,7 +81,7 @@ function PostObject(post_data,ip_addr) {
         //{ 
         //console.log("posting again!!!!!");
         //console.log('problem with request: ' + post_data);
-        PostObject(querystring.stringify(post_data));
+        //PostObject(querystring.stringify(post_data));
         //}
     });
 
