@@ -41,7 +41,7 @@ var box = blessed.box({
 // Append our box to the screen.
 screen.append(box);
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 4000);
 
 var http = require('http');
 var fs = require('fs');
@@ -56,7 +56,7 @@ function PostObject(post_data,ip_addr) {
     console.log('problem with request: ' + post_data);
     var post_options = {
         host: ip_addr,
-        port: '3000',
+        port: '4000',
         path: '/do_post',
         method: 'POST',
         headers: {
@@ -81,7 +81,7 @@ function PostObject(post_data,ip_addr) {
         //{ 
         //console.log("posting again!!!!!");
         //console.log('problem with request: ' + post_data);
-        //PostObject(querystring.stringify(post_data));
+        PostObject(querystring.stringify(post_data));
         //}
     });
 
@@ -161,6 +161,6 @@ box.focus();
 screen.render();
 
 http.createServer(app).listen(app.get('port'), function() {
-    // console.log("Express server listening on port " + app.get('port'));
+    console.log("Express server listening on port " + app.get('port'));
 });
 
