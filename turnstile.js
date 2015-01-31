@@ -115,7 +115,7 @@ screen.render();
 var interval = 3000;
 
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 4000);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
@@ -130,7 +130,7 @@ function PostObject(post_data, sendto) {
     // console.log('problem with request: ' + pendingQueue);
     var post_options = {
         host: sendto,
-        port: '3000',
+        port: '4000',
         path: '/do_post',
         method: 'POST',
         headers: {
