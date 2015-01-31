@@ -34,9 +34,9 @@ var box = blessed.box({
 // Append our box to the screen.
 //screen.append(box);
 
-var lock_ip = "192.168.0.106";
-var my_ip =  "192.168.0.101";
-var var_ip = "192.168.0.100";
+var lock_ip = "192.168.0.101";
+var my_ip =  "192.168.0.106";
+var var_ip = "192.168.0.103";
 
 //box.setContent('This node is  ' + my_ip + '  East');
 //screen.render();
@@ -46,7 +46,7 @@ var interval = 3000;
 
 
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 4000);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
@@ -57,7 +57,7 @@ function PostObject(post_data, sendto) {
     // console.log('problem with request: ' + pendingQueue);
     var post_options = {
         host: sendto,
-        port: '3000',
+        port: '4000',
         path: '/do_post',
         method: 'POST',
         headers: {
@@ -193,7 +193,7 @@ box.focus();
 screen.render();
 
 http.createServer(app).listen(app.get('port'), function() {
-    // console.log("Express server listening on port " + app.get('port'));
+    console.log("Express server listening on port " + app.get('port'));
 });
 
 
