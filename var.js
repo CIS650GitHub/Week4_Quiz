@@ -100,18 +100,16 @@ function sendCurrentCount (num, recipient) {
             ip: recipient
         });
 
-	PostObject(post_data, recipient);
+	//PostObject(post_data, recipient);
 }
 
 // handle POST requests
 app.post('/do_post', function(req, res) {
-
+    console.log(req);
+	console.log(req.body);
     var the_body = req.body;
 	
-    res.json({
-            "body": the_body,
-            "ip": JSON.stringify(current_ip)
-        });
+  
         
         if(the_body !== null && the_body.read !== null && parseInt(the_body.read) === 0) {
         	var ip = the_body.ip;
@@ -122,7 +120,10 @@ app.post('/do_post', function(req, res) {
         	current_count = parseInt(the_body.count) + 1;
         	console.log("Count updated!");
         }
-        
+      res.json({
+            "body": the_body,
+            "ip": JSON.stringify(current_ip)
+        });   
     
 });
 
