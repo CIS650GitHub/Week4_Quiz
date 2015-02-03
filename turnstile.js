@@ -14,8 +14,8 @@ var querystring = require('querystring');
 var box = blessed.box({
         top: 'center',
         left: 'center',
-        width: '75%',
-        height: '75%',
+        width: '100%',
+        height: '100%',
         content: '',
         tags: true,
         border: {
@@ -37,9 +37,9 @@ var box = blessed.box({
 var form = blessed.form({
       parent: box,
       top: 'center',
-   	  left: 'center',
-      width: '80%',
-      height: '80%',
+      left: 'center',
+      width: '50%',
+      height: '50%',
       border: {
         type: 'line'
       },
@@ -55,10 +55,10 @@ var addPerson = blessed.button({
   mouse: true,
   keys: true,
   shrink: true,
-   top: 'center',
-   left: 'center',
-   width: '50%',
-   height: '50%', 
+  top: 'center',
+  left: 'center',
+  width: '50%',
+  height: '50%', 
   name: 'addPerson',
   content: 'addPerson',
   style: {
@@ -79,10 +79,9 @@ var addPerson = blessed.button({
 // Append our box to the screen.
 screen.append(box);
 
-var lock_ip = "192.168.0.101";
+var lock_ip = "192.168.0.107";
 var my_ip =  "";
 var var_ip = "192.168.0.103";
-
 
 var ifaces = os.networkInterfaces();
 
@@ -112,21 +111,12 @@ Object.keys(ifaces).forEach(function (ifname) {
 box.setContent('This node is  ' + my_ip + '  East');
 screen.render();
 
-var interval = 3000;
-
-
 app.set('port', process.env.PORT || 4000);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
-
-
-
-
 function PostObject(post_data, sendto) {
-    // An object of options to indicate where to post to
-    console.log("Sending it to "+ sendto);
-    console.log("Post data : " + post_data);
+    // An object of options to indicate where to post to   
     // console.log('problem with request: ' + pendingQueue);
     var post_options = {
         host: sendto,
@@ -175,24 +165,22 @@ var poll;
 
 // handle POST requests
 app.post('/do_post', function(req, res) {
-    console.log("Received Message");
-    var the_body = req.body;
-    console.log(the_body);
+    //console.log("Received Message");
+    var the_body = req.body;    
     if(the_body !== null && parseInt(the_body.acquired) === 1)
     {
-	    console.log("Aquired Lock Sending Read request");
-        clearInterval(poll);
-        sendReadVar();
+	     box.insertBottom("Aquired Lock Sending Read request");
+       clearInterval(poll);
+       sendReadVar();
     }
     else if(the_body!==null && parseInt(the_body.acquired) === 0)
     {
-        console.log("will poll again");
+        box.insertBottom("No lock, will poll again");
         poll =  setInterval(pollagain ,  2000);
     }
     else if(the_body!=null && parseInt(the_body.read) == 1 )
     {
-        console.log("send write--");
-        var n = the_body.count;
+        var n = parseInt(the_body.count);
         sendWrite(n);
     }
 
@@ -216,7 +204,7 @@ console.log("Add person");
 
 function newPerson()
 {
-     console.log("Sending it to lock get lock"+ lock_ip);
+     box.insertBottom("Getting Lock");
       var post_data1 = querystring.stringify({
                 lock: 1,
                 ip: my_ip
@@ -228,7 +216,7 @@ function newPerson()
 
 function release()
 {
-     console.log("send realease the lock");
+     box.insertBottom("Releasing Lock");
       var post_data1 = querystring.stringify({
                 lock: 0,
                 ip: my_ip
@@ -239,14 +227,13 @@ function release()
 
 function sendReadVar(){
 
-	console.log("send Read Var");
-    
     var post_data1 = querystring.stringify({
                 read: 0,
                 ip: my_ip
             });
-            
-    PostObject(post_data1,var_ip);        
+  
+  //console.log("send Read to Var" + var_ip);          
+  PostObject(post_data1,var_ip);        
 
 }
 function sendWrite(n){
@@ -265,9 +252,8 @@ function sendWrite(n){
             });
             
     PostObject(post_data1,var_ip);     
-    
+    box.insertBottom("Updating Count to "+ n);    
     release();
-
 }
 
 // Focus our element.

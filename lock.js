@@ -7,9 +7,10 @@ var bodyParser = require('body-parser');
 var app = express();
 var election_on = 1;
 var election_off = 0;
-var my_ip = "192.168.0.101";
+var my_ip = "192.168.0.107";
 var ipLock = "";
 var available = 1;
+var local  = "127.0.0.1";
 
 app.use(bodyParser.urlencoded());
 

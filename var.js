@@ -12,7 +12,8 @@ var ipLock = "";
 var available = 1;
 var current_count = 0;
 var current_ip = "";
-var lock_ip = "192.168.0.101";
+var lock_ip = "192.168.0.107";
+
 
 app.use(bodyParser.urlencoded());
 
@@ -49,14 +50,12 @@ app.set('port', process.env.PORT || 4000);
 var http = require('http');
 var fs = require('fs');
 var querystring = require('querystring');
-box.setContent('This node is  ' + my_ip + '  East');
+box.setContent('This node is  ' + my_ip + '  Var');
 screen.render();
 
 
 function PostObject(post_data,ip_addr) {
-    // An object of options to indicate where to post to
-    
-    console.log('problem with request: ' + post_data);
+    // An object of options to indicate where to post to    
     var post_options = {
         host: ip_addr,
         port: '4000',
@@ -72,20 +71,12 @@ function PostObject(post_data,ip_addr) {
     var post_req = http.request(post_options, function(res) {
         res.setEncoding('utf8');
         res.on('data', function(chunk) {
-            // clean the queue......
-            // console.log('Response: ' + chunk);
+           
         });
     });
 
     post_req.on('error', function(e, post_data) {
-
-        // console.log("trying ......") ;
-        // if(Buffer.byteLength(querystring.stringify(post_data)) > 0)
-        //{ 
-        //console.log("posting again!!!!!");
-        //console.log('problem with request: ' + post_data);
-        PostObject(querystring.stringify(post_data));
-        //}
+        console.log('Problem with sending: ' + post_data);            
     });
 
     post_req.write(post_data);
@@ -100,25 +91,22 @@ function sendCurrentCount (num, recipient) {
             ip: recipient
         });
 
-	//PostObject(post_data, recipient);
+	PostObject(post_data, recipient);
 }
 
 // handle POST requests
 app.post('/do_post', function(req, res) {
-    console.log(req);
-	console.log(req.body);
-    var the_body = req.body;
-	
-  
+   
+    var the_body = req.body;  
         
-        if(the_body !== null && the_body.read !== null && parseInt(the_body.read) === 0) {
+    if(the_body !== null && the_body.read !== null && parseInt(the_body.read) === 0) {
         	var ip = the_body.ip;
         	sendCurrentCount(current_count, ip);
-        	console.log("Count read!");
-        }
+        	box.insertBottom("Sending Count!" +current_count);
+    }
         else if(the_body !== null && the_body.writereq !== null && parseInt(the_body.writereq) === 0) {
-        	current_count = parseInt(the_body.count) + 1;
-        	console.log("Count updated!");
+        	current_count = parseInt(the_body.count);
+        	box.insertBottom("Count updated !" +current_count);
         }
       res.json({
             "body": the_body,
