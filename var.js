@@ -45,7 +45,7 @@ var box = blessed.box({
 // Append our box to the screen.
 screen.append(box);
 
-app.set('port', process.env.PORT || 4000);
+app.set('port', process.env.PORT || 5000);
 
 var http = require('http');
 var fs = require('fs');
@@ -58,7 +58,7 @@ function PostObject(post_data,ip_addr) {
     // An object of options to indicate where to post to    
     var post_options = {
         host: ip_addr,
-        port: '4000',
+        port: '5000',
         path: '/do_post',
         method: 'POST',
         headers: {
@@ -102,7 +102,7 @@ app.post('/do_post', function(req, res) {
     if(the_body !== null && the_body.read !== null && parseInt(the_body.read) === 0) {
         	var ip = the_body.ip;
         	sendCurrentCount(current_count, ip);
-        	box.insertBottom("Sending Count!" +current_count);
+        	box.setContent("Sending Count!" +current_count);
     }
         else if(the_body !== null && the_body.writereq !== null && parseInt(the_body.writereq) === 0) {
         	current_count = parseInt(the_body.count);

@@ -5,8 +5,6 @@ var connect = require("connect");
 var blessed = require('blessed');
 var bodyParser = require('body-parser');
 var app = express();
-var election_on = 1;
-var election_off = 0;
 var my_ip = "192.168.0.107";
 var ipLock = "";
 var available = 1;
@@ -42,7 +40,7 @@ var box = blessed.box({
 // Append our box to the screen.
 screen.append(box);
 
-app.set('port', process.env.PORT || 4000);
+app.set('port', process.env.PORT || 5000);
 
 var http = require('http');
 var fs = require('fs');
@@ -53,11 +51,10 @@ screen.render();
 
 function PostObject(post_data,ip_addr) {
     // An object of options to indicate where to post to
-    
-    console.log('problem with request: ' + post_data);
+       
     var post_options = {
         host: ip_addr,
-        port: '4000',
+        port: '5000',
         path: '/do_post',
         method: 'POST',
         headers: {
@@ -76,14 +73,7 @@ function PostObject(post_data,ip_addr) {
     });
 
     post_req.on('error', function(e, post_data) {
-
-        // console.log("trying ......") ;
-        // if(Buffer.byteLength(querystring.stringify(post_data)) > 0)
-        //{ 
-        //console.log("posting again!!!!!");
-        //console.log('problem with request: ' + post_data);
-        PostObject(querystring.stringify(post_data));
-        //}
+        console.log("Problem with sending" + post_data);
     });
 
     post_req.write(post_data);
@@ -91,61 +81,60 @@ function PostObject(post_data,ip_addr) {
 }
 
 // handle POST requests
-app.post('/do_post', function(req, res) {
-    console.log("Received Message");
-	  console.log("check" + req);
-	console.log(req.body);
-   var the_body = req.body;
+app.post('/do_post', function(req, res) {    
+   var the_body = req.body;   
    
    var sender_ip = the_body.ip;
    var msg_type = parseInt(the_body.lock);
+   console.log("Got message :" + msg_type);
+
   if( msg_type === 1){
-      console.log("Received a request for the lock \n")
-	if( available === 1){
-       console.log("lock is available\n")
-	    //send
-	    available = 0;
-		ipLock = sender_ip;
-		var post_data = querystring.stringify({
-                    acquired:1
-        });
-		console.log("acquired " + sender_ip + " lock" );
-		console.log("sending message to " + sender_ip + "that they aquired lock")
-	    PostObject(post_data, sender_ip);
+      box.setContent("Received a request for the lock ");
+	   if( available === 1){
+           box.insertBottom("lock is available for " +sender_ip);	    
+    	   available = 0;
+    	   ipLock = sender_ip;
+    	   var post_data = querystring.stringify({
+                acquired:1
+            });
+    		//console.log("acquired " + sender_ip + " lock" );
+    		//console.log("sending message to " + sender_ip + "that they aquired lock")
+    	    PostObject(post_data, sender_ip);
    
-	}else if(available === 0){
+	   }else if(available === 0){
 	    
-	    console.log("lock is unavailable ");
-	   //send message back if it is the lock holder 
-       if( ipLock.localeCompare(sender_ip) === 0){
-           console.log("sender is current owner of the lock \n");
-			//send message lock is true
-			//set lock to unavailable
-			available = 0;
-			ipLock = sender_ip;
-			
-			console.log("sending " + sender_ip + " message that they own lock\n")
-			var post_data = querystring.stringify({
-                    acquired:1
-                });
-				
-				PostObject(post_data, sender_ip);
-			
-	   }else{
-	       console.log(sender_ip + " sender does not own the lock ");
-	       console.log("sending message to " + sender_ip + " lock request denied\n");
-	     var post_data = querystring.stringify({
-                    aquired:0
-                });
-				
-				PostObject(post_data, sender_ip);
-	   }
-	}
+	        box.insertBottom("lock is unavailable " + sender_ip);
+            /*
+    	   //send message back if it is the lock holder 
+           if( ipLock.localeCompare(sender_ip) === 0){
+                //console.log("sender is current owner of the lock \n");
+    			//send message lock is true
+    			//set lock to unavailable
+    			available = 0;
+    			ipLock = sender_ip;			
+    			//console.log("sending " + sender_ip + " message that they own lock\n")
+    			var post_data = querystring.stringify({
+                        acquired:1
+                    });
+    				
+    				PostObject(post_data, sender_ip);
+    			
+    	   }else{
+    	       //console.log(sender_ip + " sender does not own the lock ");
+    	       //console.log("sending message to " + sender_ip + " lock request denied\n");
+              */ 
+    	     var post_data = querystring.stringify({
+                        aquired:0
+                    });
+    				
+    				PostObject(post_data, sender_ip);
+	   
+	       }
+    }
   }else if( msg_type === 0){
-      
+      box.insertBottom("Relasing Lock");
 	  available = 1;
-	  ipLock = "";
-  
+	  ipLock = "";  
   }
 });
 

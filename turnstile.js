@@ -7,9 +7,6 @@ var bodyParser = require('body-parser');
 var app = express();
 var screen = blessed.screen();
 var querystring = require('querystring');
-
-
-
 // Create a box perfectly centered horizontally and vertically.
 var box = blessed.box({
         top: 'center',
@@ -32,7 +29,6 @@ var box = blessed.box({
             }
         }
     });
-
 
 var form = blessed.form({
       parent: box,
@@ -111,7 +107,7 @@ Object.keys(ifaces).forEach(function (ifname) {
 box.setContent('This node is  ' + my_ip + '  East');
 screen.render();
 
-app.set('port', process.env.PORT || 4000);
+app.set('port', process.env.PORT || 5000);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
@@ -120,7 +116,7 @@ function PostObject(post_data, sendto) {
     // console.log('problem with request: ' + pendingQueue);
     var post_options = {
         host: sendto,
-        port: '4000',
+        port: '5000',
         path: '/do_post',
         method: 'POST',
         headers: {
@@ -170,15 +166,15 @@ app.post('/do_post', function(req, res) {
     if(the_body !== null && parseInt(the_body.acquired) === 1)
     {
 	     box.insertBottom("Aquired Lock Sending Read request");
-       clearInterval(poll);
+       //clearInterval(poll);
        sendReadVar();
     }
     else if(the_body!==null && parseInt(the_body.acquired) === 0)
     {
-        box.insertBottom("No lock, will poll again");
-        poll =  setInterval(pollagain ,  2000);
+        box.insertBottom("No lock, poll again");
+       // poll =  setInterval(pollagain ,  2000);
     }
-    else if(the_body!=null && parseInt(the_body.read) == 1 )
+    else if(the_body!==null && parseInt(the_body.read) === 1 )
     {
         var n = parseInt(the_body.count);
         sendWrite(n);
@@ -193,7 +189,7 @@ app.post('/do_post', function(req, res) {
 
 
 addPerson.on('press', function() {
-console.log("Add person");	
+//console.log("Add person");	
  newPerson();
 });
 
@@ -204,7 +200,7 @@ console.log("Add person");
 
 function newPerson()
 {
-     box.insertBottom("Getting Lock");
+     box.setContent("Getting Lock");
       var post_data1 = querystring.stringify({
                 lock: 1,
                 ip: my_ip
@@ -237,13 +233,14 @@ function sendReadVar(){
 
 }
 function sendWrite(n){
-    if(n == 4)
-     {
-         n ==0;
-     } 
+
+    if(n === 4)
+    {
+         n = 0;
+    } 
     else
     {
-     n = n+ 1;
+      n = n+1;
     }
      var post_data1 = querystring.stringify({
                 writereq:0,
