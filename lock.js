@@ -130,12 +130,20 @@ app.post('/do_post', function(req, res) {
     				PostObject(post_data, sender_ip);
 	   
 	       }
+
+
     }
   }else if( msg_type === 0){
       box.insertBottom("Relasing Lock");
 	  available = 1;
 	  ipLock = "";  
   }
+
+ res.json({
+            "body": the_body,
+            "ip": JSON.stringify(current_ip)
+    });
+  
 });
 
 
