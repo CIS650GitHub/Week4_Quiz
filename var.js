@@ -12,7 +12,7 @@ var ipLock = "";
 var available = 1;
 var current_count = 0;
 var current_ip = "";
-var lock_ip = "192.168.0.107";
+var lock_ip = "192.168.0.101";
 
 
 app.use(bodyParser.urlencoded());
@@ -21,26 +21,26 @@ app.use(bodyParser.urlencoded());
 var screen = blessed.screen();
 // Create a box perfectly centered horizontally and vertically.
 var box = blessed.box({
-        top: 'center',
-        left: 'center',
-        width: '75%',
-        height: '75%',
-        content: '',
-        tags: true,
+    top: 'center',
+    left: 'center',
+    width: '75%',
+    height: '75%',
+    content: '',
+    tags: true,
+    border: {
+        type: 'line'
+    },
+    style: {
+        fg: 'white',
+        bg: 'black',
         border: {
-            type: 'line'
+            fg: '#f0f0f0'
         },
-        style: {
-            fg: 'white',
-            bg: 'black',
-            border: {
-                fg: '#f0f0f0'
-            },
-            hover: {
-                bg: 'black'
-            }
+        hover: {
+            bg: 'black'
         }
-    });
+    }
+});
 
 // Append our box to the screen.
 screen.append(box);
@@ -54,7 +54,7 @@ box.setContent('This node is  ' + my_ip + '  Var');
 screen.render();
 
 
-function PostObject(post_data,ip_addr) {
+function PostObject(post_data, ip_addr) {
     // An object of options to indicate where to post to    
     var post_options = {
         host: ip_addr,
@@ -71,48 +71,49 @@ function PostObject(post_data,ip_addr) {
     var post_req = http.request(post_options, function(res) {
         res.setEncoding('utf8');
         res.on('data', function(chunk) {
-           
+
         });
     });
 
     post_req.on('error', function(e, post_data) {
-        console.log('Problem with sending: ' + post_data);            
+        console.log('Problem with sending: ' + post_data);
     });
 
     post_req.write(post_data);
     post_req.end();
 }
 
-function sendCurrentCount (num, recipient) {
+function sendCurrentCount(num, recipient) {
 
-	var post_data = querystring.stringify({
-            count: num,
-            read: 1,
-            ip: recipient
-        });
+    var post_data = querystring.stringify({
+        count: num,
+        read: 1,
+        ip: recipient
+    });
 
-	PostObject(post_data, recipient);
+    PostObject(post_data, recipient);
 }
 
 // handle POST requests
 app.post('/do_post', function(req, res) {
-   
-    var the_body = req.body;  
-        
-    if(the_body !== null && the_body.read !== null && parseInt(the_body.read) === 0) {
-        	var ip = the_body.ip;
-        	sendCurrentCount(current_count, ip);
-        	box.setContent("Sending Count!" +current_count);
+
+    var the_body = req.body;
+
+    if (the_body !== null && the_body.read !== null && parseInt(the_body.read) === 0) {
+        var ip = the_body.ip;
+        sendCurrentCount(current_count, ip);
+        box.setContent("Sending Count!" + current_count);
+        screen.render();
+    } else if (the_body !== null && the_body.writereq !== null && parseInt(the_body.writereq) === 0) {
+        current_count = parseInt(the_body.count);
+        box.insertBottom("Count updated !" + current_count);
+        screen.render();
     }
-        else if(the_body !== null && the_body.writereq !== null && parseInt(the_body.writereq) === 0) {
-        	current_count = parseInt(the_body.count);
-        	box.insertBottom("Count updated !" +current_count);
-        }
-      res.json({
-            "body": the_body,
-            "ip": JSON.stringify(current_ip)
-        });   
-    
+    res.json({
+        "body": the_body,
+        "ip": JSON.stringify(current_ip)
+    });
+
 });
 
 
